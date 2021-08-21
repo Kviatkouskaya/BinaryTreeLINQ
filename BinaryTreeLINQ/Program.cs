@@ -6,32 +6,26 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace BinaryTreeLINQ
 {
-    public class BinaryFileCreation
+    public class BinaryFileSerializer
     {
         private readonly string fileName;
-        public BinaryFileCreation(string name)
+        public BinaryFileSerializer(string name)
         {
             fileName = name;
-            BinaryWriter binaryWriter = new(new FileStream(fileName, FileMode.Create));
-            binaryWriter.Close();
         }
-        public void FillBinaryFile(List<StudentInfo> students)
+        public void Write(List<StudentInfo> students)
         {
-            BinaryFormatter binaryFormatter = new();
-            using (FileStream fileStream = new(fileName, FileMode.Open))
+            using (FileStream fileStream = new(fileName, FileMode.Create))
             {
-                binaryFormatter.Serialize(fileStream, students);
+                new BinaryFormatter().Serialize(fileStream, students);
             }
         }
-        public List<StudentInfo> ExtructBinaryStudents()
+        public List<StudentInfo> Read()
         {
-            List<StudentInfo> students = new();
-            BinaryFormatter binaryFormatter = new();
             using (FileStream fileStream = new(fileName, FileMode.Open))
             {
-                students = (List<StudentInfo>)binaryFormatter.Deserialize(fileStream);
+                return (List<StudentInfo>)new BinaryFormatter().Deserialize(fileStream);
             }
-            return students;
         }
     }
     [Serializable]
@@ -215,8 +209,8 @@ namespace BinaryTreeLINQ
     {
         static void Main()
         {
-            BinaryFileCreation binary = new(@"C:\Users\ollik\source\repos\EPAM training\BinaryTreeLINQ\StudentTestResults.bin");
-            binary.FillBinaryFile(UserInterface.InputStudent(2));
+            BinaryFileSerializer binary = new(@"C:\Users\ollik\source\repos\EPAM training\BinaryTreeLINQ\StudentTestResults.bin");
+            binary.Write(UserInterface.InputStudent(2));
 
         }
     }

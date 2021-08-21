@@ -15,13 +15,13 @@ namespace BinaryTreeLINQ_Tests
                                          string nSt1, string tN1, string date1, int r1,
                                          string nSt2, string tN2, string date2, int r2)
         {
-            BinaryFileCreation binaryFile = new(@"C:\Users\ollik\source\repos\EPAM training\BinaryTreeLINQ\BinaryForTests.bin");
+            BinaryFileSerializer binaryFile = new(@"C:\Users\ollik\source\repos\EPAM training\BinaryTreeLINQ\BinaryForTests.bin");
             StudentInfo student1 = new(nSt, tN, System.DateTime.Parse(date), r);
             StudentInfo student2 = new(nSt1, tN1, System.DateTime.Parse(date1), r1);
             StudentInfo student3 = new(nSt2, tN2, System.DateTime.Parse(date2), r2);
             List<StudentInfo> expected = new() { student1, student2, student3 };
-            binaryFile.FillBinaryFile(expected);
-            List<StudentInfo> actual = binaryFile.ExtructBinaryStudents();
+            binaryFile.Write(expected);
+            List<StudentInfo> actual = binaryFile.Read();
             var compareResult = true;
             for (int i = 0; i < actual.Count; i++)
             {
