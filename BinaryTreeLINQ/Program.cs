@@ -3,6 +3,7 @@ using System.Text;
 using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections;
 
 namespace BinaryTreeLINQ
 {
@@ -62,7 +63,7 @@ namespace BinaryTreeLINQ
         }
     }
 
-    public class TreeNode<T> : IComparable<TreeNode<T>> where T : IComparable<T>
+    public class TreeNode<T> : IEnumerable<T>, IComparable<TreeNode<T>> where T : IComparable<T>
     {
         public TreeNode(T value)
         {
@@ -174,6 +175,29 @@ namespace BinaryTreeLINQ
                 builder.Append(Right.ToString());
             }
             return builder.ToString();
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            if (Right != null)
+            {
+                foreach (var item in Right)
+                {
+                    yield return item;
+                }
+            }
+            if (Left != null)
+            {
+                foreach (var item in Left)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
     }
     public static class UserInterface
