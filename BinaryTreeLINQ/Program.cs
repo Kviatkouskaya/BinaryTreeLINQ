@@ -73,6 +73,7 @@ namespace BinaryTreeLINQ
         public TreeNode<T> Right { get; private set; }
         public TreeNode<T> Parent { get; private set; }
         public T Value { get; private set; }
+
         public int CompareTo(TreeNode<T> other)
         {
             return Value.CompareTo(other.Value);
@@ -179,25 +180,72 @@ namespace BinaryTreeLINQ
 
         public IEnumerator<T> GetEnumerator()
         {
-            if (Right != null)
-            {
-                foreach (var item in Right)
-                {
-                    yield return item;
-                }
-            }
-            if (Left != null)
-            {
-                foreach (var item in Left)
-                {
-                    yield return item;
-                }
-            }
+            TreeNode<T> leftest = FindMostLeft();
+            return new MyEnumerator(leftest, this);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return GetEnumerator();
+        }
+
+        class MyEnumerator : IEnumerator<T>
+        {
+            private readonly TreeNode<T> leftest;
+            private TreeNode<T> currentNode;
+            private T currentValue;
+            public MyEnumerator(TreeNode<T> leftest, TreeNode<T> currentNode)
+            {
+                this.leftest = leftest;
+                this.currentNode = currentNode;
+            }
+            public T Current => currentValue;
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose()
+            {
+
+            }
+
+            public bool MoveNext()
+            {
+                currentNode = currentValue == null ? leftest : Traverse(currentNode);
+                if (currentNode is null)
+                {
+                    return false;
+                }
+                currentValue = currentNode.Value;
+                return currentNode != null;
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
+            public TreeNode<T> Traverse(TreeNode<T> node)
+            {
+                if (node.Left != null && node.Left.Value.CompareTo(currentValue) > 0)
+                {
+                    return Traverse(node.Left);
+                }
+                if (node.Value.CompareTo(currentValue) > 0)
+                {
+                    return node;
+                }
+                if (node.Right != null && node.Right.Value.CompareTo(currentValue) > 0)
+                {
+                    return Traverse(node.Right);
+                }
+                if (node.Parent != null)
+                {
+                    return Traverse(node.Parent);
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
     }
     public static class UserInterface
@@ -234,8 +282,17 @@ namespace BinaryTreeLINQ
         static void Main()
         {
             BinaryFileSerializer binary = new(@"C:\Users\ollik\source\repos\EPAM training\BinaryTreeLINQ\StudentTestResults.bin");
-            binary.Write(UserInterface.InputStudent(2));
-
+            // binary.Write(UserInterface.InputStudent(2));
+            List<StudentInfo> studentsList = binary.Read();
+            TreeNode<StudentInfo> studentInfos = new(studentsList[0]);
+            foreach (var item in studentsList)
+            {
+                studentInfos.Add(item);
+            }
+            foreach (var item in studentInfos)
+            {
+                UserInterface.PrintStudent(item);
+            }
         }
     }
 }

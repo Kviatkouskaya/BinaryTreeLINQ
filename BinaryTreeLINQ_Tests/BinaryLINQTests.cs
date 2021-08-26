@@ -33,5 +33,36 @@ namespace BinaryTreeLINQ_Tests
             }
             Assert.IsTrue(compareResult);
         }
+        [TestMethod]
+        [DataRow("Vit", "Test1", "2021-06-21", 2, "Val", "Test2", "2021-06-21", 1, "Zidan", "Test1", "2021-06-21", 3)]
+        [DataRow("Jack", "Test2", "2021-06-21", 3, "Bob", "Test3", "2021-06-21", 2, "Jeff", "Test2", "2021-06-21", 8)]
+        [DataRow("John", "Test4", "2021-06-21", 6, "Alice", "Test3", "2021-06-21", 6, "Victor", "Test2", "2021-06-21", 10)]
+        public void CheckMyEnumerator(string nSt, string tN, string date, int r,
+                                        string nSt1, string tN1, string date1, int r1,
+                                        string nSt2, string tN2, string date2, int r2)
+        {
+            StudentInfo student1 = new(nSt, tN, System.DateTime.Parse(date), r);
+            StudentInfo student2 = new(nSt1, tN1, System.DateTime.Parse(date1), r1);
+            StudentInfo student3 = new(nSt2, tN2, System.DateTime.Parse(date2), r2);
+            TreeNode<StudentInfo> studentTree = new(student1);
+            studentTree.Add(student2);
+            studentTree.Add(student3);
+            List<StudentInfo> actual = new();
+            foreach (var item in studentTree)
+            {
+                actual.Add(item);
+            }
+            List<StudentInfo> expected = new() { student2, student1, student3 };
+            var result = true;
+            for (int i = 0; i < expected.Count; i++)
+            {
+                if (expected[i] != actual[i])
+                {
+                    result = false;
+                    break;
+                }
+            }
+            Assert.IsTrue(result);
+        }
     }
 }
