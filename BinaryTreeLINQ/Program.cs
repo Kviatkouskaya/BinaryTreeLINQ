@@ -32,10 +32,10 @@ namespace BinaryTreeLINQ
     [Serializable]
     public class StudentInfo : IComparable<StudentInfo>
     {
-        private readonly string studentName;
-        private readonly string testName;
-        private readonly DateTime testDate;
-        private readonly int rating;
+        public readonly string studentName;
+        public readonly string testName;
+        public readonly DateTime testDate;
+        public readonly int rating;
         public StudentInfo(string studentName, string testName, DateTime testDate, int rating)
         {
             this.studentName = studentName;
@@ -183,12 +183,10 @@ namespace BinaryTreeLINQ
             TreeNode<T> leftest = FindMostLeft();
             return new MyEnumerator(leftest, this);
         }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
-
         class MyEnumerator : IEnumerator<T>
         {
             private readonly TreeNode<T> leftest;
@@ -200,14 +198,10 @@ namespace BinaryTreeLINQ
                 this.currentNode = currentNode;
             }
             public T Current => currentValue;
-
             object IEnumerator.Current => Current;
-
             public void Dispose()
             {
-
             }
-
             public bool MoveNext()
             {
                 currentNode = currentValue == null ? leftest : Traverse(currentNode);
@@ -218,7 +212,6 @@ namespace BinaryTreeLINQ
                 currentValue = currentNode.Value;
                 return currentNode != null;
             }
-
             public void Reset()
             {
                 throw new NotImplementedException();
@@ -256,25 +249,25 @@ namespace BinaryTreeLINQ
             while (count != 0)
             {
                 Console.WriteLine("Enter student name:");
-                string sN = Console.ReadLine();
+                string studentName = Console.ReadLine();
                 Console.WriteLine("Enter test name:");
-                string tN = Console.ReadLine();
+                string testName = Console.ReadLine();
                 Console.WriteLine("Enter test date:");
                 DateTime date = Convert.ToDateTime(Console.ReadLine());
                 Console.WriteLine("Enter student result:");
-                int result = Convert.ToInt32(Console.ReadLine());
+                int rating = Convert.ToInt32(Console.ReadLine());
                 count--;
-                students.Add(new StudentInfo(sN, tN, date, result));
+                students.Add(new StudentInfo(studentName, testName, date, rating));
             }
             return students;
         }
         public static void PrintStudent(StudentInfo student)
         {
-            string[] studentArray = student.ToString().Split(' ');
-            Console.WriteLine($"\nName: {studentArray[0]}");
-            Console.WriteLine($"Test: {studentArray[1]}");
-            Console.WriteLine($"Date: {studentArray[3]}");
-            Console.WriteLine($"Rating: {studentArray[4]}");
+            Console.WriteLine($"\nName: {student.studentName}");
+            Console.WriteLine($"Test: {student.testName}");
+            Console.WriteLine($"Date: {student.testDate.Day}/{student.testDate.Month}/" +
+                              $"{student.testDate.Year}");
+            Console.WriteLine($"Rating: {student.rating}");
         }
     }
     class Program
@@ -282,7 +275,7 @@ namespace BinaryTreeLINQ
         static void Main()
         {
             BinaryFileSerializer binary = new(@"C:\Users\ollik\source\repos\EPAM training\BinaryTreeLINQ\StudentTestResults.bin");
-            // binary.Write(UserInterface.InputStudent(2));
+            //binary.Write(UserInterface.InputStudent(20));
             List<StudentInfo> studentsList = binary.Read();
             TreeNode<StudentInfo> studentInfos = new(studentsList[0]);
             foreach (var item in studentsList)
