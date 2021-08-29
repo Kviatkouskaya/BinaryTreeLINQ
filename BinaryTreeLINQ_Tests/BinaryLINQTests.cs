@@ -12,8 +12,8 @@ namespace BinaryTreeLINQ_Tests
         [DataRow("Jack", "Test2", "2021-06-21", 3, "Bob", "Test3", "2021-06-21", 2, "Jeff", "Test2", "2021-06-21", 8)]
         [DataRow("John", "Test4", "2021-06-21", 6, "Alice", "Test3", "2021-06-21", 6, "Victor", "Test2", "2021-06-21", 10)]
         public void CheckFileComponentsTest(string nSt, string tN, string date, int r,
-                                         string nSt1, string tN1, string date1, int r1,
-                                         string nSt2, string tN2, string date2, int r2)
+                                            string nSt1, string tN1, string date1, int r1,
+                                            string nSt2, string tN2, string date2, int r2)
         {
             BinaryFileSerializer binaryFile = new(@"C:\Users\ollik\source\repos\EPAM training\BinaryTreeLINQ\BinaryForTests.bin");
             StudentInfo student1 = new(nSt, tN, System.DateTime.Parse(date), r);
@@ -38,8 +38,8 @@ namespace BinaryTreeLINQ_Tests
         [DataRow("Jack", "Test2", "2021-06-21", 3, "Bob", "Test3", "2021-06-21", 2, "Jeff", "Test2", "2021-06-21", 8)]
         [DataRow("John", "Test4", "2021-06-21", 6, "Alice", "Test3", "2021-06-21", 6, "Victor", "Test2", "2021-06-21", 10)]
         public void CheckMyEnumerator(string nSt, string tN, string date, int r,
-                                        string nSt1, string tN1, string date1, int r1,
-                                        string nSt2, string tN2, string date2, int r2)
+                                      string nSt1, string tN1, string date1, int r1,
+                                      string nSt2, string tN2, string date2, int r2)
         {
             StudentInfo student1 = new(nSt, tN, System.DateTime.Parse(date), r);
             StudentInfo student2 = new(nSt1, tN1, System.DateTime.Parse(date1), r1);

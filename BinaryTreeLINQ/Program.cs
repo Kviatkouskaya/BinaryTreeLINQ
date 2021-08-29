@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections;
+using System.Linq;
 
 namespace BinaryTreeLINQ
 {
@@ -59,10 +60,9 @@ namespace BinaryTreeLINQ
         }
         public override string ToString()
         {
-            return $"{studentName} {testName} {testDate} {Convert.ToString(rating)}";
+            return $"{studentName} {testName} {testDate.Month}.{testDate.Day}.{testDate.Year} {Convert.ToString(rating)}";
         }
     }
-
     public class TreeNode<T> : IEnumerable<T>, IComparable<TreeNode<T>> where T : IComparable<T>
     {
         public TreeNode(T value)
@@ -108,61 +108,10 @@ namespace BinaryTreeLINQ
                 return node;
             }
         }
-        public void Remove(T son)
-        {
-            TreeNode<T> found = Search(son);
-            found.PerformRemoval();
-        }
-        private TreeNode<T> PerformRemoval()
-        {
-            if (Left == null && Right == null)
-            {
-                Detach(null);
-            }
-            if (Left == null || Right == null)
-            {
-                Detach(Left ?? Right);
-            }
-            else
-            {
-                TreeNode<T> leftLeaf = Right.FindMostLeft();
-                leftLeaf.PerformRemoval();
-                Detach(leftLeaf);
-                leftLeaf.Left = Left;
-                leftLeaf.Right = Right;
-            }
-            return this;
-        }
-        private void Detach(TreeNode<T> replacement)
-        {
-            if (Parent != null)
-            {
-                if (Parent.Left == this) Parent.Left = replacement;
-                if (Parent.Right == this) Parent.Right = replacement;
-            }
-        }
         private TreeNode<T> FindMostLeft()
         {
             return Left == null ? this : Left.FindMostLeft();
         }
-        public TreeNode<T> Search(T son)
-        {
-            TreeNode<T> found = null;
-            if (Value.CompareTo(son) == 0)
-            {
-                return this;
-            }
-            if (Left != null)
-            {
-                found = Left.Search(son);
-            }
-            if (found == null && Right != null)
-            {
-                return Right.Search(son);
-            }
-            return found;
-        }
-
         public override string ToString()
         {
             StringBuilder builder = new();
@@ -177,7 +126,6 @@ namespace BinaryTreeLINQ
             }
             return builder.ToString();
         }
-
         public IEnumerator<T> GetEnumerator()
         {
             TreeNode<T> leftest = FindMostLeft();
@@ -241,7 +189,39 @@ namespace BinaryTreeLINQ
             }
         }
     }
-    public static class UserInterface
+    static class Query
+    {
+        public static Func<StudentInfo, object> GetSortParam(string field)
+        {
+            return x =>
+            {
+                return field switch
+                {
+                    "studentName" => x.studentName,
+                    "testName" => x.testName,
+                    "testData" => x.testDate,
+                    "rating" => x.rating,
+                    _ => x.rating,
+                };
+            };
+        }
+        public static IEnumerable<StudentInfo> GetQueryResult(int sequence, TreeNode<StudentInfo> studentInfos,
+                                                              Func<StudentInfo, object> fieldSelector, int number)
+        {
+            IEnumerable<StudentInfo> queryResult = null;
+            switch (sequence)
+            {
+                case 1:
+                    queryResult = studentInfos.OrderBy(fieldSelector).Take(number);
+                    break;
+                case 2:
+                    queryResult = studentInfos.OrderByDescending(fieldSelector).Take(number);
+                    break;
+            }
+            return queryResult;
+        }
+    }
+    static class UserInterface
     {
         public static List<StudentInfo> InputStudent(int count)
         {
@@ -261,13 +241,73 @@ namespace BinaryTreeLINQ
             }
             return students;
         }
-        public static void PrintStudent(StudentInfo student)
+        public static int InputLinesNumber()
         {
-            Console.WriteLine($"\nName: {student.studentName}");
-            Console.WriteLine($"Test: {student.testName}");
-            Console.WriteLine($"Date: {student.testDate.Day}/{student.testDate.Month}/" +
-                              $"{student.testDate.Year}");
-            Console.WriteLine($"Rating: {student.rating}");
+            Console.WriteLine("Enter the lines number for output(from 0 till 20):");
+            var number = 0;
+            try
+            {
+                number = Convert.ToInt32(Console.ReadLine());
+            }
+            catch (FormatException e)
+            {
+                Console.WriteLine(e.Message + "Request denied.");
+            }
+            return number;
+        }
+        public static string InputSortParam()
+        {
+            Console.WriteLine("Enter sort param:");
+            Console.WriteLine("1.Student name;\n2.Test name;" +
+                              "\n3.Test date;\n4.Rating.");
+            var param = 0;
+            try
+            {
+                param = Convert.ToInt32(Console.ReadLine());
+                if (param > 4)
+                {
+                    throw new ArgumentException("Wrong number!");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message + "Request denied.");
+            }
+            var sortParam = string.Empty;
+            switch (param)
+            {
+                case 1:
+                    sortParam = "studentName";
+                    break;
+                case 2:
+                    sortParam = "testName";
+                    break;
+                case 3:
+                    sortParam = "testDate";
+                    break;
+                case 4:
+                    sortParam = "rating";
+                    break;
+            }
+            return sortParam;
+        }
+        public static int InputSequence()
+        {
+            Console.WriteLine("Enter sorting method:\n1.Ascending; \n2.Descending.");
+            var param = 0;
+            try
+            {
+                param = Convert.ToInt32(Console.ReadLine());
+                if (param > 2)
+                {
+                    throw new ArgumentException("Wrong sequence!");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message + "Request denied.");
+            }
+            return param;
         }
     }
     class Program
@@ -275,16 +315,21 @@ namespace BinaryTreeLINQ
         static void Main()
         {
             BinaryFileSerializer binary = new(@"C:\Users\ollik\source\repos\EPAM training\BinaryTreeLINQ\StudentTestResults.bin");
-            //binary.Write(UserInterface.InputStudent(20));
+            binary.Write(UserInterface.InputStudent(20));
             List<StudentInfo> studentsList = binary.Read();
             TreeNode<StudentInfo> studentInfos = new(studentsList[0]);
             foreach (var item in studentsList)
             {
                 studentInfos.Add(item);
             }
-            foreach (var item in studentInfos)
+            string sortParam = UserInterface.InputSortParam();
+            Func<StudentInfo, object> fieldSelector = Query.GetSortParam(sortParam);
+            int sequence = UserInterface.InputSequence();
+            int linesNumber = UserInterface.InputLinesNumber();
+            IEnumerable<StudentInfo> queryResult = Query.GetQueryResult(sequence, studentInfos, fieldSelector, linesNumber);
+            foreach (var item in queryResult)
             {
-                UserInterface.PrintStudent(item);
+                Console.WriteLine(item);
             }
         }
     }
